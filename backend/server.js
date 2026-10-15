@@ -112,15 +112,17 @@ app.use((err, req, res, next) => {
 // On Vercel this block is skipped — Vercel calls the exported app directly.
 if (!process.env.VERCEL && require.main === module) {
   const PORT = process.env.PORT || 5000;
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+
   connectDB()
-    .then(() =>
-      app.listen(PORT, "0.0.0.0", () =>
-        console.log(`Server running at http://localhost:${PORT}`)
-      )
-    )
+    .then(() => {
+      console.log("Database connected successfully");
+    })
     .catch((err) => {
-      console.error("Failed to connect to DB on startup:", err.message);
-      process.exit(1);
+      console.warn("⚠️ Initial database connection warning:", err.message);
+      console.warn("Server is running. Requests will retry connecting to MongoDB automatically.");
     });
 }
 
