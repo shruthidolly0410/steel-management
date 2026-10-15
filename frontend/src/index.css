@@ -710,3 +710,199 @@ tbody tr:last-child td { border-bottom: none; }
   .user-info, .sidebar-meta, .btn-logout span:first-child { display: none; }
   .user-avatar { width: 30px; height: 30px; font-size: 13px; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   FEATURE 2 — LOW STOCK ALERT DASHBOARD
+   ═══════════════════════════════════════════════════════════ */
+
+/* Urgency badges */
+.urg-critical { background: #fee2e2; color: var(--bad); }
+.urg-danger   { background: #ffedd5; color: #c05621;    }
+.urg-warning  { background: #fef9c3; color: var(--warn);}
+
+/* Stat card variant for LowStock */
+.ls-stat-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  border-top: 3px solid var(--line);
+}
+
+/* Stock bar */
+.stock-bar-wrap { display: flex; flex-direction: column; gap: 4px; }
+.stock-bar-track {
+  position: relative;
+  height: 8px;
+  background: var(--line);
+  border-radius: 100px;
+  overflow: visible;
+}
+.stock-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width .4s ease;
+  min-width: 2px;
+}
+/* Vertical reorder marker */
+.stock-bar-marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 14px;
+  background: var(--bad);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.stock-bar-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FEATURE 5 — INSPECTION SUMMARY REPORT & PRINT
+   ═══════════════════════════════════════════════════════════ */
+
+/* Letterhead */
+.ir-letterhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 28px;
+  background: var(--side);
+  color: #fff;
+  border-radius: var(--radius) var(--radius) 0 0;
+  gap: 20px;
+}
+.ir-logo {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  margin-bottom: 4px;
+}
+.ir-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  letter-spacing: .3px;
+}
+.ir-letterhead-right {
+  text-align: right;
+  font-size: 13px;
+}
+.ir-meta-line {
+  color: rgba(255,255,255,.8);
+  line-height: 1.7;
+}
+.ir-meta-line strong { color: #fff; }
+
+/* Verdict banner */
+.ir-verdict {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 28px;
+  border: 2px solid;
+  border-top: none;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+.ir-verdict-icon  { font-size: 28px; flex-shrink: 0; }
+.ir-verdict-label { font-size: 16px; font-weight: 700; letter-spacing: .4px; }
+.ir-verdict-sub   { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+/* KPI stat pills */
+.ir-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+}
+.ir-stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  border: 2px solid;
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  min-width: 100px;
+}
+.ir-stat-value {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+.ir-stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+/* Print footer — hidden on screen */
+.ir-print-footer { display: none; }
+
+/* ── @media print — show only the report ─────────────────── */
+@media print {
+  /* Hide everything */
+  .sidebar,
+  .page-header,
+  .no-print,
+  .btn-primary,
+  .btn-ghost,
+  .alert-error,
+  .alert-warn,
+  .sidebar-footer,
+  body > *:not(.app-layout) { display: none !important; }
+
+  /* Reset layout for print */
+  .app-layout { display: block !important; }
+  .main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Show the report */
+  .print-region { display: block !important; }
+
+  /* Letterhead */
+  .ir-letterhead {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #1f2a35 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Verdict */
+  .ir-verdict { break-inside: avoid; }
+
+  /* Table */
+  .ir-table th, .ir-table td { font-size: 11px; }
+  .table-wrap { overflow: visible !important; }
+
+  /* Footer */
+  .ir-print-footer {
+    display: flex !important;
+    justify-content: space-between;
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+    margin-top: 20px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* Page settings */
+  @page {
+    size: A4;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+}

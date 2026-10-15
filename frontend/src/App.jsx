@@ -5,13 +5,17 @@ import Furnaces from "./pages/Furnaces";
 import Materials from "./pages/Materials";
 import Inspections from "./pages/Inspections";
 import Auth from "./pages/Auth";
+import LowStock from "./pages/LowStock";
+import InspectionReport from "./pages/InspectionReport";
 
 const NAV = [
-  { id: "dashboard",   label: "Production analytics",   icon: "📊", view: <Dashboard /> },
-  { id: "schedules",   label: "Production scheduling",   icon: "📅", view: <Schedules /> },
-  { id: "furnaces",    label: "Furnace monitoring",      icon: "🔥", view: <Furnaces /> },
-  { id: "materials",   label: "Raw material tracking",   icon: "📦", view: <Materials /> },
-  { id: "inspections", label: "Quality inspection",      icon: "🔬", view: <Inspections /> },
+  { id: "dashboard",         label: "Production analytics",   icon: "📊", view: <Dashboard /> },
+  { id: "schedules",         label: "Production scheduling",   icon: "📅", view: <Schedules /> },
+  { id: "furnaces",          label: "Furnace monitoring",      icon: "🔥", view: <Furnaces /> },
+  { id: "materials",         label: "Raw material tracking",   icon: "📦", view: <Materials /> },
+  { id: "inspections",       label: "Quality inspection",      icon: "🔬", view: <Inspections /> },
+  { id: "lowstock",          label: "Stock alerts",            icon: "⚠️",  view: <LowStock /> },
+  { id: "inspectionreport",  label: "Inspection report",       icon: "🖨️",  view: <InspectionReport /> },
 ];
 
 export default function App() {
