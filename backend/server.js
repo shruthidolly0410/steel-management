@@ -1,7 +1,8 @@
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
+
 const connectDB = require("./config/db");
 
 const Schedule = require("./models/Schedule");
@@ -13,11 +14,12 @@ const crudRouter = require("./routes/crudRouter");
 const analyticsRouter = require("./routes/analytics");
 
 const app = express();
-const isProd = process.env.NODE_ENV === "production";
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
-// In production the backend serves the frontend from the same origin,
-// so CORS is only needed for separate-origin deployments.
+const isVercel = Boolean(process.env.VERCEL);
+
+// Middleware
+app.use(express.json());
+
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:5173",
@@ -29,51 +31,110 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: (origin, cb) => {
-      // Allow same-origin requests (no Origin header) and known origins
-      if (!origin) return cb(null, true);
-      if (allowedOrigins.includes(origin)) return cb(null, true);
-      // In production without an explicit CLIENT_URL, allow all (CDN, Render preview URLs)
-      if (isProd && !process.env.CLIENT_URL) return cb(null, true);
-      cb(new Error(`CORS: origin ${origin} not allowed`));
+    origin: (origin, callback) => {
+      // Allow requests without an Origin header.
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow other origins only when explicitly configured
+      // for your deployment.
+      if (
+        process.env.NODE_ENV === "production" &&
+        process.env.ALLOW_ALL_ORIGINS === "true"
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS origin not allowed"));
     },
     credentials: true,
   })
 );
 
-app.use(express.json());
+// Health check (does not require a database connection)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Steel Management API is running",
+    environment: process.env.NODE_ENV || "development",
+  });
+});
 
-// ── Health ─────────────────────────────────────────────────────────────────────
-app.get("/api/health", (req, res) =>
-  res.json({ status: "ok", env: process.env.NODE_ENV || "development" })
-);
+// Reuse the database connection across requests.
+let dbPromise;
 
-// ── API Routes ─────────────────────────────────────────────────────────────────
+async function ensureDBConnected() {
+  if (!dbPromise) {
+    dbPromise = Promise.resolve()
+      .then(() => connectDB())
+      .catch((error) => {
+        // Allow a later request to retry after a connection failure.
+        dbPromise = null;
+        throw error;
+      });
+  }
+
+  await dbPromise;
+}
+
+// Ensure MongoDB is connected before processing API routes.
+app.use("/api", async (req, res, next) => {
+  try {
+    await ensureDBConnected();
+    next();
+  } catch (error) {
+    console.error("MongoDB connection error:", error.message);
+
+    res.status(503).json({
+      success: false,
+      message: "Database connection unavailable",
+    });
+  }
+});
+
+// API routes
 app.use("/api/schedules", crudRouter(Schedule));
 app.use("/api/furnaces", crudRouter(Furnace));
 app.use("/api/materials", crudRouter(Material));
 app.use("/api/inspections", crudRouter(Inspection));
 app.use("/api/analytics", analyticsRouter);
 
-// ── Serve Frontend Build (production only) ────────────────────────────────────
-// The frontend `npm run build` outputs to frontend/dist.
-// In production, the backend serves those static files directly,
-// so only one server/port is needed.
-if (isProd) {
-  const distPath = path.join(__dirname, "../frontend/dist");
-  app.use(express.static(distPath));
+// Handle unknown API routes.
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
 
-  // Catch-all: return index.html for any non-API route (SPA client-side routing)
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+// Global error handler
+app.use((error, req, res, next) => {
+  console.error("Request error:", error.message);
+
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+  });
+});
+
+// Local development only.
+// Vercel handles incoming requests through its serverless runtime.
+if (!isVercel && require.main === module) {
+  const PORT = process.env.PORT || 5000;
+
+  app.listen(PORT, () => {
+    console.log(
+      `Server running at http://localhost:${PORT}`
+    );
   });
 }
 
-// ── Start ──────────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
-
-connectDB().then(() => {
-  app.listen(PORT, "0.0.0.0", () =>
-    console.log(`[${process.env.NODE_ENV || "development"}] Server → http://localhost:${PORT}`)
-  );
-});
+// Required for Vercel to load the Express application.
+module.exports = app;

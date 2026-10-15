@@ -1,7 +1,7 @@
 {
   "name": "steel-backend",
   "version": "1.0.0",
-  "description": "Steel Manufacturing Management System - Backend",
+  "description": "Steel Manufacturing Management System Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
