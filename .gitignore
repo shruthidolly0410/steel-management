@@ -1,0 +1,28 @@
+# ── Dependencies ──────────────────────────────────────
+node_modules/
+.npm/
+
+# ── Build output ──────────────────────────────────────
+frontend/dist/
+frontend/build/
+
+# ── Environment files (never commit secrets) ──────────
+.env
+backend/.env
+frontend/.env
+frontend/.env.production
+
+# ── Logs ──────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ── OS files ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor ────────────────────────────────────────────
+.vscode/
+.idea/
+
+# ── MongoDB local data ────────────────────────────────
+data/

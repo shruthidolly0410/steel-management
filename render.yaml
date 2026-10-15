@@ -1,0 +1,25 @@
+# Render.com deployment configuration
+# ──────────────────────────────────────────────────────────────────────────────
+# Strategy: single web service — backend serves the frontend build.
+# MongoDB: use MongoDB Atlas (add MONGO_URI in Render environment variables).
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: steel-mms
+    env: node
+    region: oregon           # change to your preferred region
+    plan: free               # upgrade for production workloads
+    rootDir: .               # monorepo root
+    buildCommand: npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend
+    startCommand: NODE_ENV=production node backend/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000          # Render assigns 10000 by default
+      - key: MONGO_URI
+        sync: false           # Set this manually in Render dashboard (Atlas URI)
+      - key: CLIENT_URL
+        sync: false           # Optional: your custom domain
