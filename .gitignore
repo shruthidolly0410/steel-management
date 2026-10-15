@@ -6,11 +6,13 @@ node_modules/
 frontend/dist/
 frontend/build/
 
-# ── Environment files (never commit secrets) ──────────
+# ── Environment files (NEVER commit secrets) ──────────
 .env
-backend/.env
-frontend/.env
-frontend/.env.production
+.env.*
+**/.env
+**/.env.*
+# Exception: example/template files are safe to commit
+!**/.env.example
 
 # ── Logs ──────────────────────────────────────────────
 *.log
