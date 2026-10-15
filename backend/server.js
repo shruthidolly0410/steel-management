@@ -11,6 +11,7 @@ const Material = require("./models/Material");
 const Inspection = require("./models/Inspection");
 const crudRouter = require("./routes/crudRouter");
 const analyticsRouter = require("./routes/analytics");
+const authRouter = require("./routes/auth");
 
 const app = express();
 const isProd = process.env.NODE_ENV === "production";
@@ -83,6 +84,7 @@ app.use("/api/furnaces", crudRouter(Furnace));
 app.use("/api/materials", crudRouter(Material));
 app.use("/api/inspections", crudRouter(Inspection));
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/auth", authRouter);
 
 // Unknown API route
 app.use("/api", (req, res) =>

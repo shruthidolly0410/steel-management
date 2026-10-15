@@ -6,20 +6,30 @@ const BASE = (
 ).replace(/\/+$/, "");
 
 async function request(path, options = {}) {
+  const token = localStorage.getItem("steel_token");
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers,
   });
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || "Request failed");
+    throw new Error(err.error || err.message || "Request failed");
   }
-  // DELETE returns { message } with no body issues
+
+  // Handle empty or text responses cleanly
   const text = await res.text();
   return text ? JSON.parse(text) : null;
 }
 
 const api = {
+  // Existing CRUD & Analytics methods
   list: (ep) => request(`/${ep}`),
   create: (ep, body) =>
     request(`/${ep}`, { method: "POST", body: JSON.stringify(body) }),
@@ -28,6 +38,13 @@ const api = {
   remove: (ep, id) =>
     request(`/${ep}/${id}`, { method: "DELETE" }),
   analytics: () => request("/analytics"),
+
+  // Authentication methods
+  login: (credentials) =>
+    request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
+  register: (userData) =>
+    request("/auth/register", { method: "POST", body: JSON.stringify(userData) }),
+  getMe: () => request("/auth/me"),
 };
 
 export default api;
